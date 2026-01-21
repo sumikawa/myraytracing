@@ -1,6 +1,21 @@
 use myraytracing::*;
 
+fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> bool {
+    let oc: Vec3 = r.origin() - center;
+    let di: Vec3 = r.direction();
+    let a: f64 = di.dot(di);
+    let b: f64 = 2.0 * di.dot(oc);
+    let c: f64 = oc.dot(oc) - radius * radius;
+    let discriminant: f64 = b * b - 4.0 * a *c;
+
+    return discriminant > 0.0;
+}
+
 fn ray_color(r: Ray) -> Vec3 {
+    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, &r) {
+	return Color::new(1.0, 0.0, 0.0);
+    }
+
     let unit_direction: Vec3 = r.direction().unit_vector();
     let t: f64 = 0.5 * (unit_direction.y + 1.0);
     return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
