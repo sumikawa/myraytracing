@@ -183,3 +183,24 @@ impl Ray {
         self.origin + self.direction * t
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(4.0, 5.0, 6.0);
+        let result = v1 + v2;
+        assert_eq!(result, Vec3::new(5.0, 7.0, 9.0));
+    }
+
+    #[test]
+    fn test_unit_vector() {
+        let a = Vec3::new(1.0, 2.0, 3.0);
+        let unit_direction = a.unit_vector();
+        // A simple check to see if the length is close to 1.0
+        assert!((unit_direction.length() - 1.0).abs() < 0.000001);
+    }
+}

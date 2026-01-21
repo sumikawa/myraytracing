@@ -3,12 +3,4 @@ name = "myraytracing"
 version = "0.1.0"
 edition = "2024"
 
-[[bin]]
-name = "vec3_test"
-path = "src/vec3_test.rs"
-
-[[bin]]
-name = "operators_test"
-path = "src/operators_test.rs"
-
 [dependencies]
