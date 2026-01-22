@@ -1,14 +1,15 @@
 use myraytracing::hittable::{Hittable, Sphere};
+use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
 use myraytracing::vec3::{Color, Point3, Vec3};
+use std::sync::Arc;
 
-fn ray_color(r: Ray) -> Vec3 {
-    let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
-    if let Some(rec) = sphere.hit(&r, 0.0, f64::MAX) {
+fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+    if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
         0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
     } else {
-        let unit_direction: Vec3 = r.direction().unit_vector();
-        let t: f64 = 0.5 * (unit_direction.y() + 1.0);
+        let unit_direction = r.direction().unit_vector();
+        let t = 0.5 * (unit_direction.y() + 1.0);
         (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 }
@@ -40,6 +41,12 @@ fn main() {
     let lower_left_corner: Vec3 =
         origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
+    let mut world = HittableList::new();
+    world.add(Arc::new(Sphere::new(
+	Point3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, -100.5, -1.0), 100.0)));
+
     for j in (0..IMAGE_HEIGHT).rev() {
         eprintln!("\rScanlines remaining: {} ", j);
         for i in 0..IMAGE_WIDTH {
@@ -50,7 +57,7 @@ fn main() {
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
 
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(&r, &world);
             write_color(pixel_color);
         }
     }
