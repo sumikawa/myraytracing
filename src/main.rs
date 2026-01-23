@@ -23,11 +23,15 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
 }
 
 fn write_color(pixel_color: Color, samples_per_pixel: u32) {
-    // Write the translated [0,255] value of each color component.
-    let scale: f64 = 1.0 / samples_per_pixel as f64;
-    let r: f64 = pixel_color.x * scale;
-    let g: f64 = pixel_color.y * scale;
-    let b: f64 = pixel_color.z * scale;
+    let r = pixel_color.x;
+    let g = pixel_color.y;
+    let b = pixel_color.z;
+
+    // Divide the color by the number of samples and gamma-correct for gamma=2.0.
+    let scale = 1.0 / samples_per_pixel as f64;
+    let r = (scale * r).sqrt();
+    let g = (scale * g).sqrt();
+    let b = (scale * b).sqrt();
 
     println!(
         "{} {} {}",
