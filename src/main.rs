@@ -1,11 +1,12 @@
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
+use myraytracing::rtweekend::INFINITY;
 use myraytracing::vec3::{Color, Point3, Vec3};
 use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
-    if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
+    if let Some(rec) = world.hit(r, 0.0, INFINITY) {
         0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
     } else {
         let unit_direction = r.direction().unit_vector();
