@@ -1,5 +1,6 @@
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
+use crate::rtweekend::{random_double, random_double_range};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 {
@@ -38,6 +39,32 @@ impl Vec3 {
 
     pub fn unit_vector(&self) -> Self {
         *self / self.length()
+    }
+
+    pub fn random() -> Self {
+        Self {
+            x: random_double(),
+            y: random_double(),
+            z: random_double(),
+        }
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Self {
+            x: random_double_range(min, max),
+            y: random_double_range(min, max),
+            z: random_double_range(min, max),
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+	loop {
+	    let p = Vec3::random_range(-1.0, 1.0);
+	    if p.length_squared() >= 1.0 {
+		continue;
+	    }
+	    return p;
+	}
     }
 }
 

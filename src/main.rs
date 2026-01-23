@@ -3,13 +3,14 @@ use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::{clamp, random_double, INFINITY};
-use myraytracing::vec3::{Color, Point3};
+use myraytracing::vec3::{Color, Point3, Vec3};
 use std::sync::Arc;
 use std::io::Write;
 
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
     if let Some(rec) = world.hit(r, 0.0, INFINITY) {
-        0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
+	let target: Point3 = rec.p + rec.normal + Vec3::random_in_unit_sphere();
+	return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world);
     } else {
         let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
