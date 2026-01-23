@@ -1,8 +1,9 @@
+use myraytracing::camera::Camera;
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::INFINITY;
-use myraytracing::vec3::{Color, Point3, Vec3};
+use myraytracing::vec3::{Color, Point3};
 use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
@@ -30,33 +31,23 @@ fn main() {
     const IMAGE_WIDTH: i32 = 384;
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
 
-    println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
-
-    let viewport_height: f64 = 2.0;
-    let viewport_width: f64 = ASPECT_RATIO * viewport_height;
-    let focal_length: f64 = 1.0;
-
-    let origin: Point3 = Point3::new(0.0, 0.0, 0.0);
-    let horizontal: Vec3 = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical: Vec3 = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner: Vec3 =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
-
     let mut world = HittableList::new();
+    world.add(Arc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
     world.add(Arc::new(Sphere::new(
-	Point3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Arc::new(Sphere::new(
-        Point3::new(0.0, -100.5, -1.0), 100.0)));
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+    )));
+
+    let cam = Camera::new();
+
+    println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
 
     for j in (0..IMAGE_HEIGHT).rev() {
         eprintln!("\rScanlines remaining: {} ", j);
         for i in 0..IMAGE_WIDTH {
             let u: f64 = i as f64 / (IMAGE_WIDTH - 1) as f64;
             let v: f64 = j as f64 / (IMAGE_HEIGHT - 1) as f64;
-            let r: Ray = Ray::new(
-                origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
-            );
+            let r = cam.get_ray(u, v);
 
             let pixel_color = ray_color(&r, &world);
             write_color(pixel_color);
