@@ -5,6 +5,7 @@ use myraytracing::ray::Ray;
 use myraytracing::rtweekend::INFINITY;
 use myraytracing::vec3::{Color, Point3};
 use std::sync::Arc;
+use std::io::Write;
 
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
     if let Some(rec) = world.hit(r, 0.0, INFINITY) {
@@ -43,7 +44,8 @@ fn main() {
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
 
     for j in (0..IMAGE_HEIGHT).rev() {
-        eprintln!("\rScanlines remaining: {} ", j);
+        eprint!("\rScanlines remaining: {} ", j);
+        std::io::stderr().flush().unwrap();
         for i in 0..IMAGE_WIDTH {
             let u: f64 = i as f64 / (IMAGE_WIDTH - 1) as f64;
             let v: f64 = j as f64 / (IMAGE_HEIGHT - 1) as f64;
