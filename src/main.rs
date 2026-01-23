@@ -7,10 +7,14 @@ use myraytracing::vec3::{Color, Point3, Vec3};
 use std::sync::Arc;
 use std::io::Write;
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
+    if depth <= 0 {
+	return Color::new(0.0, 0.0, 0.0);
+    }
+
     if let Some(rec) = world.hit(r, 0.0, INFINITY) {
 	let target: Point3 = rec.p + rec.normal + Vec3::random_in_unit_sphere();
-	return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world);
+	return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
     } else {
         let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -39,6 +43,7 @@ fn main() {
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
 
     let samples_per_pixel: u32 = 100;
+    let max_depth: u32 = 50;
 
     let mut world = HittableList::new();
     world.add(Arc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
@@ -63,7 +68,7 @@ fn main() {
 		let v: f64 = (j as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
 
 		let r = cam.get_ray(u, v);
-		pixel_color += ray_color(&r, &world);
+		pixel_color += ray_color(&r, &world, max_depth);
 	    }
             write_color(pixel_color, samples_per_pixel);
         }
