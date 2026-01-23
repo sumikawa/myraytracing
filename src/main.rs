@@ -2,7 +2,7 @@ use myraytracing::camera::Camera;
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
-use myraytracing::rtweekend::INFINITY;
+use myraytracing::rtweekend::{clamp, random_double, INFINITY};
 use myraytracing::vec3::{Color, Point3};
 use std::sync::Arc;
 use std::io::Write;
@@ -17,13 +17,18 @@ fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
     }
 }
 
-fn write_color(pixel_color: Color) {
+fn write_color(pixel_color: Color, samples_per_pixel: u32) {
     // Write the translated [0,255] value of each color component.
+    let scale: f64 = 1.0 / samples_per_pixel as f64;
+    let r: f64 = pixel_color.x * scale;
+    let g: f64 = pixel_color.y * scale;
+    let b: f64 = pixel_color.z * scale;
+
     println!(
         "{} {} {}",
-        (255.999 * pixel_color.x) as i32,
-        (255.999 * pixel_color.y) as i32,
-        (255.999 * pixel_color.z) as i32
+        (256.0 * clamp(r, 0.0, 0.999)) as i32,
+        (256.0 * clamp(g, 0.0, 0.999)) as i32,
+        (256.0 * clamp(b, 0.0, 0.999)) as i32
     );
 }
 
@@ -31,6 +36,8 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: i32 = 384;
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
+
+    let samples_per_pixel: u32 = 100;
 
     let mut world = HittableList::new();
     world.add(Arc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
@@ -46,13 +53,18 @@ fn main() {
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {} ", j);
         std::io::stderr().flush().unwrap();
-        for i in 0..IMAGE_WIDTH {
-            let u: f64 = i as f64 / (IMAGE_WIDTH - 1) as f64;
-            let v: f64 = j as f64 / (IMAGE_HEIGHT - 1) as f64;
-            let r = cam.get_ray(u, v);
 
-            let pixel_color = ray_color(&r, &world);
-            write_color(pixel_color);
+        for i in 0..IMAGE_WIDTH {
+	    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+
+	    for _ in 0..samples_per_pixel {
+		let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
+		let v: f64 = (j as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
+
+		let r = cam.get_ray(u, v);
+		pixel_color += ray_color(&r, &world);
+	    }
+            write_color(pixel_color, samples_per_pixel);
         }
     }
     eprintln!("\nDone.");
