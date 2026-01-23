@@ -10,7 +10,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
     if let Some(rec) = world.hit(r, 0.0, INFINITY) {
         0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
     } else {
-        let unit_direction = r.direction().unit_vector();
+        let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }

@@ -10,7 +10,7 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
-        self.front_face = r.direction().dot(outward_normal) < 0.0;
+        self.front_face = r.direction.dot(outward_normal) < 0.0;
         self.normal = if self.front_face {
             outward_normal
         } else {
@@ -36,9 +36,9 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let oc = r.origin() - self.center;
-        let a = r.direction().length_squared();
-        let half_b = oc.dot(r.direction());
+        let oc = r.origin - self.center;
+        let a = r.direction.length_squared();
+        let half_b = oc.dot(r.direction);
         let c = oc.length_squared() - self.radius * self.radius;
         let discriminant = half_b * half_b - a * c;
 
