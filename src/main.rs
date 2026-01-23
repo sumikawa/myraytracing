@@ -11,7 +11,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
         0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0))
     } else {
         let unit_direction = r.direction().unit_vector();
-        let t = 0.5 * (unit_direction.y() + 1.0);
+        let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 }
@@ -20,9 +20,9 @@ fn write_color(pixel_color: Color) {
     // Write the translated [0,255] value of each color component.
     println!(
         "{} {} {}",
-        (255.999 * pixel_color.x()) as i32,
-        (255.999 * pixel_color.y()) as i32,
-        (255.999 * pixel_color.z()) as i32
+        (255.999 * pixel_color.x) as i32,
+        (255.999 * pixel_color.y) as i32,
+        (255.999 * pixel_color.z) as i32
     );
 }
 
