@@ -2,6 +2,8 @@ use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 use crate::rtweekend::{random_double, random_double_range};
 
+pub const PI: f64 = std::f64::consts::PI;
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 {
     pub x: f64,
@@ -64,6 +66,18 @@ impl Vec3 {
 		continue;
 	    }
 	    return p;
+	}
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+	let a = random_double_range(0.0, 2.0 * PI);
+	let z = random_double_range(-1.0, 1.0);
+	let r = (1.0 - z * z).sqrt();
+
+	Self {
+	    x: r * a.cos(),
+	    y: r * a.sin(),
+	    z: z,
 	}
     }
 }
