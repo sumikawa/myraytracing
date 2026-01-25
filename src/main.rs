@@ -2,10 +2,11 @@ use myraytracing::camera::Camera;
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
-use myraytracing::rtweekend::{clamp, random_double, INFINITY};
+use myraytracing::rtweekend::random_double;
 use myraytracing::vec3::{Color, Point3, Vec3};
 use std::sync::Arc;
 use std::io::Write;
+use std::f64::INFINITY;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
@@ -35,9 +36,9 @@ fn write_color(pixel_color: Color, samples_per_pixel: u32) {
 
     println!(
         "{} {} {}",
-        (256.0 * clamp(r, 0.0, 0.999)) as i32,
-        (256.0 * clamp(g, 0.0, 0.999)) as i32,
-        (256.0 * clamp(b, 0.0, 0.999)) as i32
+        (256.0 * r.clamp(0.0, 0.999)) as i32,
+        (256.0 * g.clamp(0.0, 0.999)) as i32,
+        (256.0 * b.clamp(0.0, 0.999)) as i32
     );
 }
 
