@@ -4,7 +4,6 @@ use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::random_double;
 use myraytracing::vec3::{Color, Point3, Vec3};
-use std::f64::INFINITY;
 use std::io::Write;
 use std::sync::Arc;
 
@@ -13,7 +12,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(rec) = world.hit(r, 0.001, INFINITY) {
+    if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
         let target: Point3 = rec.p + rec.normal + Vec3::random_unit_vector();
         return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
     } else {
