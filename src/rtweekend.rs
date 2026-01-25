@@ -33,7 +33,11 @@ mod tests {
     fn test_random_double() {
         for _ in 0..1000 {
             let r = random_double();
-            assert!(r >= 0.0 && r < 1.0, "random_double() returned {} which is not in [0, 1)", r);
+            assert!(
+                r >= 0.0 && r < 1.0,
+                "random_double() returned {} which is not in [0, 1)",
+                r
+            );
         }
     }
 
@@ -43,14 +47,30 @@ mod tests {
         let max = 10.0;
         for _ in 0..100 {
             let r = random_double_range(min, max);
-            assert!(r >= min && r < max, "random_double_range({}, {}) returned {} which is not in [{}, {})", min, max, r, min, max);
+            assert!(
+                r >= min && r < max,
+                "random_double_range({}, {}) returned {} which is not in [{}, {})",
+                min,
+                max,
+                r,
+                min,
+                max
+            );
         }
 
         let min_small = 0.001;
         let max_small = 0.002;
         for _ in 0..100 {
             let r = random_double_range(min_small, max_small);
-            assert!(r >= min_small && r < max_small, "random_double_range({}, {}) returned {} which is not in [{}, {})", min_small, max_small, r, min_small, max_small);
+            assert!(
+                r >= min_small && r < max_small,
+                "random_double_range({}, {}) returned {} which is not in [{}, {})",
+                min_small,
+                max_small,
+                r,
+                min_small,
+                max_small
+            );
         }
     }
 }

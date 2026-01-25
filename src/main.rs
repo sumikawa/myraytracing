@@ -4,18 +4,18 @@ use myraytracing::hittable_list::HittableList;
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::random_double;
 use myraytracing::vec3::{Color, Point3, Vec3};
-use std::sync::Arc;
-use std::io::Write;
 use std::f64::INFINITY;
+use std::io::Write;
+use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth <= 0 {
-	return Color::new(0.0, 0.0, 0.0);
+        return Color::new(0.0, 0.0, 0.0);
     }
 
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
-	let target: Point3 = rec.p + rec.normal + Vec3::random_unit_vector();
-	return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
+        let target: Point3 = rec.p + rec.normal + Vec3::random_unit_vector();
+        return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
     } else {
         let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -52,10 +52,7 @@ fn main() {
 
     let mut world = HittableList::new();
     world.add(Arc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Arc::new(Sphere::new(
-        Point3::new(0.0, -100.5, -1.0),
-        100.0,
-    )));
+    world.add(Arc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     let cam = Camera::new();
 
@@ -66,15 +63,15 @@ fn main() {
         std::io::stderr().flush().unwrap();
 
         for i in 0..IMAGE_WIDTH {
-	    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
 
-	    for _ in 0..samples_per_pixel {
-		let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
-		let v: f64 = (j as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
+            for _ in 0..samples_per_pixel {
+                let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
+                let v: f64 = (j as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
 
-		let r = cam.get_ray(u, v);
-		pixel_color += ray_color(&r, &world, max_depth);
-	    }
+                let r = cam.get_ray(u, v);
+                pixel_color += ray_color(&r, &world, max_depth);
+            }
             write_color(pixel_color, samples_per_pixel);
         }
     }

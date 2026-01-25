@@ -1,6 +1,6 @@
+use crate::rtweekend::{random_double, random_double_range};
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
-use crate::rtweekend::{random_double, random_double_range};
 
 pub const PI: f64 = std::f64::consts::PI;
 
@@ -60,25 +60,25 @@ impl Vec3 {
     }
 
     pub fn random_in_unit_sphere() -> Vec3 {
-	loop {
-	    let p = Vec3::random_range(-1.0, 1.0);
-	    if p.length_squared() >= 1.0 {
-		continue;
-	    }
-	    return p;
-	}
+        loop {
+            let p = Vec3::random_range(-1.0, 1.0);
+            if p.length_squared() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
     }
 
     pub fn random_unit_vector() -> Vec3 {
-	let a = random_double_range(0.0, 2.0 * PI);
-	let z = random_double_range(-1.0, 1.0);
-	let r = (1.0 - z * z).sqrt();
+        let a = random_double_range(0.0, 2.0 * PI);
+        let z = random_double_range(-1.0, 1.0);
+        let r = (1.0 - z * z).sqrt();
 
-	Self {
-	    x: r * a.cos(),
-	    y: r * a.sin(),
-	    z: z,
-	}
+        Self {
+            x: r * a.cos(),
+            y: r * a.sin(),
+            z: z,
+        }
     }
 }
 
