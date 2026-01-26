@@ -36,3 +36,28 @@ impl Material for Lambertian {
         true
     }
 }
+
+pub struct Metal {
+    pub albedo: Color,
+}
+
+impl Metal {
+    pub fn new(albedo: Color) -> Self {
+        Self { albedo }
+    }
+}
+
+impl Material for Metal {
+    fn scatter(
+        &self,
+        r_in: &Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        let reflected = Vec3::reflect(&r_in.direction.unit_vector(), &rec.normal);
+        *scattered = Ray::new(rec.p, reflected);
+        *attenuation = self.albedo;
+        Vec3::dot(&scattered.direction, rec.normal) > 0.0
+    }
+}
