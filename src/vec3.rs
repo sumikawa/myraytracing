@@ -1,7 +1,7 @@
 use crate::rtweekend::{random_double, random_double_range};
+use std::f64::consts::PI;
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
-use std::f64::consts::PI;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 {
