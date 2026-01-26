@@ -1,6 +1,6 @@
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
-use crate::vec3::Color;
+use crate::vec3::{Color, Vec3};
 
 pub trait Material {
     fn scatter(
@@ -12,16 +12,27 @@ pub trait Material {
     ) -> bool;
 }
 
-pub struct NoMaterial;
+pub struct Lambertian {
+    pub albedo: Color,
+}
 
-impl Material for NoMaterial {
+impl Lambertian {
+    pub fn new(albedo: Color) -> Self {
+        Self { albedo }
+    }
+}
+
+impl Material for Lambertian {
     fn scatter(
         &self,
         _r_in: &Ray,
-        _rec: &HitRecord,
-        _attenuation: &mut Color,
-        _scattered: &mut Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+        scattered: &mut Ray,
     ) -> bool {
-        false // For now, no material scatters anything
+        let scatter_direction = rec.normal + Vec3::random_unit_vector();
+        *scattered = Ray::new(rec.p, scatter_direction);
+        *attenuation = self.albedo;
+        true
     }
 }

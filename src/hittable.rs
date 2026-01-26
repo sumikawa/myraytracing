@@ -1,4 +1,4 @@
-use crate::material::{Material, NoMaterial};
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 use std::sync::Arc;
@@ -29,11 +29,16 @@ pub trait Hittable {
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub mat_ptr: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new(center: Point3, radius: f64, mat_ptr: Arc<dyn Material>) -> Self {
+        Self {
+            center,
+            radius,
+            mat_ptr,
+        }
     }
 }
 
@@ -57,7 +62,7 @@ impl Hittable for Sphere {
                     t,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
-                    mat_ptr: Arc::new(NoMaterial), // Initialize mat_ptr
+                    mat_ptr: Arc::clone(&self.mat_ptr), // Assign the sphere's material
                 };
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, outward_normal);
@@ -73,7 +78,7 @@ impl Hittable for Sphere {
                     t,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
-                    mat_ptr: Arc::new(NoMaterial), // Initialize mat_ptr
+                    mat_ptr: Arc::clone(&self.mat_ptr), // Assign the sphere's material
                 };
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, outward_normal);
