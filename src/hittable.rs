@@ -1,10 +1,13 @@
+use crate::material::{Material, NoMaterial};
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
+use std::sync::Arc;
 
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
+    pub mat_ptr: Arc<dyn Material>,
     pub front_face: bool,
 }
 
@@ -54,6 +57,7 @@ impl Hittable for Sphere {
                     t,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
+                    mat_ptr: Arc::new(NoMaterial), // Initialize mat_ptr
                 };
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, outward_normal);
@@ -69,6 +73,7 @@ impl Hittable for Sphere {
                     t,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
+                    mat_ptr: Arc::new(NoMaterial), // Initialize mat_ptr
                 };
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, outward_normal);
