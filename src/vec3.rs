@@ -91,6 +91,12 @@ impl Vec3 {
 
         return r_out_parallel + r_out_perp;
     }
+
+    pub fn schlick(cosine: f64, ref_idx: f64) -> f64 {
+        let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+        let r0 = r0 * r0;
+        return r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0);
+    }
 }
 
 impl fmt::Display for Vec3 {

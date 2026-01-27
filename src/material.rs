@@ -1,5 +1,6 @@
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
+use crate::rtweekend::random_double;
 use crate::vec3::{Color, Vec3};
 
 pub trait Material {
@@ -95,6 +96,13 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         if etai_over_etat * sin_theta > 1.0 {
+            let reflected = Vec3::reflect(&unit_direction, &rec.normal);
+            *scattered = Ray::new(rec.p, reflected);
+            return true;
+        }
+
+        let reflect_prob = Vec3::schlick(cos_theta, etai_over_etat);
+        if random_double() < reflect_prob {
             let reflected = Vec3::reflect(&unit_direction, &rec.normal);
             *scattered = Ray::new(rec.p, reflected);
             return true;
