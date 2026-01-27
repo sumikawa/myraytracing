@@ -91,6 +91,15 @@ impl Material for Dielectric {
             self.ref_idx
         };
         let unit_direction = r_in.direction.unit_vector();
+        let cos_theta = rec.normal.dot(-unit_direction).min(1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        if etai_over_etat * sin_theta > 1.0 {
+            let reflected = Vec3::reflect(&unit_direction, &rec.normal);
+            *scattered = Ray::new(rec.p, reflected);
+            return true;
+        }
+
         let refracted = Vec3::refract(&unit_direction, &rec.normal, etai_over_etat);
         *scattered = Ray::new(rec.p, refracted);
         true
