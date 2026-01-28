@@ -1,5 +1,5 @@
 all::
-	cargo run > output.ppm
+	cargo run --release > output.ppm
 	magick convert output.ppm output.png
 	open -W output.ppm
 
