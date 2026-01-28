@@ -90,7 +90,13 @@ fn main() {
         material_left2,
     )));
 
-    let cam = Camera::new(90.0, ASPECT_RATIO);
+    let cam = Camera::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        90.0,
+        ASPECT_RATIO,
+    );
 
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
 
