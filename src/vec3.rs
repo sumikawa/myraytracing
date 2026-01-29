@@ -97,6 +97,20 @@ impl Vec3 {
         let r0 = r0 * r0;
         return r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0);
     }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                random_double_range(-1.0, 1.0),
+                random_double_range(-1.0, 1.0),
+                0.0,
+            );
+            if p.length_squared() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
+    }
 }
 
 impl fmt::Display for Vec3 {
