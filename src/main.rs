@@ -9,7 +9,7 @@ use std::io::Write;
 use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
-    if depth <= 0 {
+    if depth < 1 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
@@ -22,7 +22,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
         {
             return attenuation * ray_color(&scattered, world, depth - 1);
         }
-        return Color::new(0.0, 0.0, 0.0);
+        Color::new(0.0, 0.0, 0.0)
     } else {
         let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);

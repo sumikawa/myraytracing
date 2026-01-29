@@ -89,13 +89,14 @@ impl Vec3 {
         let r_out_parallel: Vec3 = etai_over_etat * (*uv + cos_theta * *n);
         let r_out_perp: Vec3 = -((1.0 - r_out_parallel.length_squared()).sqrt()) * *n;
 
-        return r_out_parallel + r_out_perp;
+        r_out_parallel + r_out_perp
     }
 
     pub fn schlick(cosine: f64, ref_idx: f64) -> f64 {
         let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
         let r0 = r0 * r0;
-        return r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0);
+
+        r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
     }
 
     pub fn random_in_unit_disk() -> Vec3 {
