@@ -76,7 +76,7 @@ impl Vec3 {
         Self {
             x: r * a.cos(),
             y: r * a.sin(),
-            z: z,
+            z,
         }
     }
 
