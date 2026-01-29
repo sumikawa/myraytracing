@@ -120,6 +120,12 @@ impl fmt::Display for Vec3 {
     }
 }
 
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self::new(0.0, 0.0, 0.0)
+    }
+}
+
 impl Neg for Vec3 {
     type Output = Self;
 

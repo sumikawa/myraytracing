@@ -10,19 +10,19 @@ use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     if depth < 1 {
-        return Color::new(0.0, 0.0, 0.0);
+        return Color::default();
     }
 
     if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
-        let mut scattered = Ray::new(Point3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0));
-        let mut attenuation = Color::new(0.0, 0.0, 0.0);
+        let mut scattered = Ray::new(Point3::default(), Vec3::default());
+        let mut attenuation = Color::default();
         if rec
             .mat_ptr
             .scatter(r, &rec, &mut attenuation, &mut scattered)
         {
             return attenuation * ray_color(&scattered, world, depth - 1);
         }
-        Color::new(0.0, 0.0, 0.0)
+        Color::default()
     } else {
         let unit_direction = r.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -145,7 +145,7 @@ fn main() {
         std::io::stderr().flush().unwrap();
 
         for i in 0..IMAGE_WIDTH {
-            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+            let mut pixel_color = Color::default();
 
             for _ in 0..samples_per_pixel {
                 let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
