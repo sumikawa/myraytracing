@@ -1,7 +1,7 @@
 use crate::rtweekend::{random_double, random_double_range};
 use std::f64::consts::PI;
 use std::fmt;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 {
@@ -10,8 +10,11 @@ pub struct Vec3 {
     pub z: f64,
 }
 
-pub type Point3 = Vec3;
-pub type Color = Vec3;
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Point3(pub Vec3);
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Color(pub Vec3);
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
@@ -114,6 +117,52 @@ impl Vec3 {
     }
 }
 
+impl Point3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self(Vec3::new(x, y, z))
+    }
+}
+
+impl Color {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self(Vec3::new(x, y, z))
+    }
+
+    pub fn random() -> Self {
+        Self(Vec3::random())
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Self(Vec3::random_range(min, max))
+    }
+}
+
+impl Deref for Point3 {
+    type Target = Vec3;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Point3 {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Deref for Color {
+    type Target = Vec3;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Color {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} {} {}", self.x, self.y, self.z)
@@ -123,6 +172,18 @@ impl fmt::Display for Vec3 {
 impl Default for Vec3 {
     fn default() -> Self {
         Self::new(0.0, 0.0, 0.0)
+    }
+}
+
+impl Default for Point3 {
+    fn default() -> Self {
+        Self(Vec3::default())
+    }
+}
+
+impl Default for Color {
+    fn default() -> Self {
+        Self(Vec3::default())
     }
 }
 
@@ -225,6 +286,82 @@ impl Div<f64> for Vec3 {
 impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, rhs: f64) {
         *self *= 1.0 / rhs;
+    }
+}
+
+// Point3 operators
+impl Sub for Point3 {
+    type Output = Vec3;
+    fn sub(self, other: Self) -> Self::Output {
+        self.0 - other.0
+    }
+}
+
+impl Add<Vec3> for Point3 {
+    type Output = Self;
+    fn add(self, other: Vec3) -> Self::Output {
+        Self(self.0 + other)
+    }
+}
+
+impl Sub<Vec3> for Point3 {
+    type Output = Self;
+    fn sub(self, other: Vec3) -> Self::Output {
+        Self(self.0 - other)
+    }
+}
+
+// Color operators
+impl Add for Color {
+    type Output = Self;
+    fn add(self, other: Self) -> Self::Output {
+        Self(self.0 + other.0)
+    }
+}
+
+impl AddAssign for Color {
+    fn add_assign(&mut self, other: Self) {
+        self.0.add_assign(other.0);
+    }
+}
+
+impl Mul for Color {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self::Output {
+        Self(self.0 * other.0)
+    }
+}
+
+impl Mul<f64> for Color {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self(self.0 * rhs)
+    }
+}
+
+impl Mul<Color> for f64 {
+    type Output = Color;
+    fn mul(self, rhs: Color) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl MulAssign<f64> for Color {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.0.mul_assign(rhs);
+    }
+}
+
+impl Div<f64> for Color {
+    type Output = Self;
+    fn div(self, rhs: f64) -> Self::Output {
+        Self(self.0 / rhs)
+    }
+}
+
+impl DivAssign<f64> for Color {
+    fn div_assign(&mut self, rhs: f64) {
+        self.0.div_assign(rhs);
     }
 }
 
