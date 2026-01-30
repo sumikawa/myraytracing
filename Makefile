@@ -1,7 +1,6 @@
 all::
-	cargo run --release > output.ppm
-	magick convert output.ppm output.png
-	open -W output.ppm
+	cargo run --release
+	open -W output.png
 
 test::
 	cargo check
@@ -13,5 +12,5 @@ lint::
 
 time::
 	date
-	cargo run --release > output.ppm
+	cargo run --release
 	date

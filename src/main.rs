@@ -37,23 +37,12 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
     Color::default()
 }
 
-fn write_color(pixel_color: Color, samples_per_pixel: u32) {
-    let r = pixel_color.x;
-    let g = pixel_color.y;
-    let b = pixel_color.z;
+fn write_color(color: Color) -> image::Rgb<u8> {
+    let r = (256.0 * color.x.sqrt().clamp(0.0, 0.9999)) as u8;
+    let g = (256.0 * color.y.sqrt().clamp(0.0, 0.9999)) as u8;
+    let b = (256.0 * color.z.sqrt().clamp(0.0, 0.9999)) as u8;
 
-    // Divide the color by the number of samples and gamma-correct for gamma=2.0.
-    let scale = 1.0 / samples_per_pixel as f64;
-    let r = (scale * r).sqrt();
-    let g = (scale * g).sqrt();
-    let b = (scale * b).sqrt();
-
-    println!(
-        "{} {} {}",
-        (256.0 * r.clamp(0.0, 0.999)) as i32,
-        (256.0 * g.clamp(0.0, 0.999)) as i32,
-        (256.0 * b.clamp(0.0, 0.999)) as i32
-    );
+    image::Rgb([r, g, b])
 }
 
 fn random_scene() -> HittableList {
@@ -145,24 +134,27 @@ fn main() {
         dist_to_focus,
     );
 
-    println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
+    let mut imgbuf = image::ImageBuffer::new(IMAGE_WIDTH, IMAGE_HEIGHT);
+    let mut remaining_pixels: u32 = IMAGE_WIDTH * IMAGE_HEIGHT;
 
-    for j in (0..IMAGE_HEIGHT).rev() {
-        eprint!("\rScanlines remaining: {} ", j);
+    for (i, j, pixel) in imgbuf.enumerate_pixels_mut() {
+        remaining_pixels -= 1;
+        eprint!("\rPixels remaining: {} ", remaining_pixels);
         std::io::stderr().flush().unwrap();
 
-        for i in 0..IMAGE_WIDTH {
-            let mut pixel_color = Color::default();
+        let mut pixel_color = Color::default();
 
-            for _ in 0..samples_per_pixel {
-                let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
-                let v: f64 = (j as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
+        for _ in 0..samples_per_pixel {
+            let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
+            let v: f64 = ((IMAGE_HEIGHT - j) as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
 
-                let r = cam.get_ray(u, v);
-                pixel_color += ray_color(&r, &world, max_depth);
-            }
-            write_color(pixel_color, samples_per_pixel);
+            let r = cam.get_ray(u, v);
+            pixel_color += ray_color(&r, &world, max_depth);
         }
+        pixel_color /= samples_per_pixel as f64;
+        *pixel = write_color(pixel_color);
     }
+
     eprintln!("\nDone.");
+    imgbuf.save("output.png").unwrap();
 }
