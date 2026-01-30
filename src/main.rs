@@ -9,25 +9,32 @@ use std::io::Write;
 use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
-    if depth < 1 {
-        return Color::default();
+    let mut current_ray = Ray::new(r.origin, r.direction);
+    let mut overall_attenuation = Color::new(1.0, 1.0, 1.0);
+
+    for _ in 0..depth {
+        if let Some(rec) = world.hit(&current_ray, 0.001, f64::INFINITY) {
+            let mut scattered = Ray::new(Point3::default(), Vec3::default());
+            let mut attenuation = Color::default();
+            if rec
+                .mat_ptr
+                .scatter(&current_ray, &rec, &mut attenuation, &mut scattered)
+            {
+                overall_attenuation = overall_attenuation * attenuation;
+                current_ray = scattered;
+            } else {
+                return Color::default();
+            }
+        } else {
+            let unit_direction = current_ray.direction.unit_vector();
+            let t = 0.5 * (unit_direction.y + 1.0);
+            let background_color =
+                (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
+            return overall_attenuation * background_color;
+        }
     }
 
-    if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
-        let mut scattered = Ray::new(Point3::default(), Vec3::default());
-        let mut attenuation = Color::default();
-        if rec
-            .mat_ptr
-            .scatter(r, &rec, &mut attenuation, &mut scattered)
-        {
-            return attenuation * ray_color(&scattered, world, depth - 1);
-        }
-        Color::default()
-    } else {
-        let unit_direction = r.direction.unit_vector();
-        let t = 0.5 * (unit_direction.y + 1.0);
-        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
-    }
+    Color::default()
 }
 
 fn write_color(pixel_color: Color, samples_per_pixel: u32) {
