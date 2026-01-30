@@ -114,8 +114,8 @@ fn random_scene() -> HittableList {
 
 fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WIDTH: i32 = 384;
-    const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
+    const IMAGE_WIDTH: u32 = 384;
+    const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
 
     let samples_per_pixel: u32 = 100;
     let max_depth: u32 = 50;
