@@ -6,6 +6,12 @@ pub struct HittableList {
     pub objects: Vec<Arc<dyn Hittable>>,
 }
 
+impl Default for HittableList {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HittableList {
     pub fn new() -> Self {
         Self {
