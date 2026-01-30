@@ -10,3 +10,8 @@ test::
 
 lint::
 	cargo clippy
+
+time::
+	date
+	cargo run --release > output.ppm
+	date
