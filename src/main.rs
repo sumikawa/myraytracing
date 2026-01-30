@@ -1,3 +1,4 @@
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use myraytracing::camera::Camera;
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
@@ -5,7 +6,7 @@ use myraytracing::material::{Dielectric, Lambertian, Metal};
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::random_double;
 use myraytracing::vec3::{Color, Point3, Vec3};
-use std::io::Write;
+use rayon::prelude::*;
 use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
@@ -135,26 +136,36 @@ fn main() {
     );
 
     let mut imgbuf = image::ImageBuffer::new(IMAGE_WIDTH, IMAGE_HEIGHT);
-    let mut remaining_pixels: u32 = IMAGE_WIDTH * IMAGE_HEIGHT;
 
-    for (i, j, pixel) in imgbuf.enumerate_pixels_mut() {
-        remaining_pixels -= 1;
-        eprint!("\rPixels remaining: {} ", remaining_pixels);
-        std::io::stderr().flush().unwrap();
+    let pb = ProgressBar::new((IMAGE_WIDTH * IMAGE_HEIGHT) as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template(
+                "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
+            )
+            .unwrap()
+            .progress_chars("#>-"),
+    );
 
-        let mut pixel_color = Color::default();
+    let pixels: Vec<(u32, u32, &mut image::Rgb<u8>)> = imgbuf.enumerate_pixels_mut().collect();
 
-        for _ in 0..samples_per_pixel {
-            let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
-            let v: f64 = ((IMAGE_HEIGHT - j) as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
+    pixels
+        .into_par_iter()
+        .progress_with(pb)
+        .for_each(|(i, j, pixel)| {
+            let mut pixel_color = Color::default();
 
-            let r = cam.get_ray(u, v);
-            pixel_color += ray_color(&r, &world, max_depth);
-        }
-        pixel_color /= samples_per_pixel as f64;
-        *pixel = write_color(pixel_color);
-    }
+            for _ in 0..samples_per_pixel {
+                let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
+                let v: f64 =
+                    ((IMAGE_HEIGHT - j - 1) as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
 
-    eprintln!("\nDone.");
+                let r = cam.get_ray(u, v);
+                pixel_color += ray_color(&r, &world, max_depth);
+            }
+            pixel_color /= samples_per_pixel as f64;
+            *pixel = write_color(pixel_color);
+        });
+
     imgbuf.save("output.png").unwrap();
 }
