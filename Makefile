@@ -11,6 +11,6 @@ lint::
 	cargo clippy
 
 time::
-	date
+	@date
 	cargo run --release
-	date
+	@date
