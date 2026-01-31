@@ -9,33 +9,34 @@ use myraytracing::vec3::{Color, Point3, Vec3};
 use rayon::prelude::*;
 use std::sync::Arc;
 
-fn ray_color(r: &Ray, world: &dyn Hittable, depth: u32) -> Color {
-    let mut current_ray = Ray::new(r.origin, r.direction);
-    let mut overall_attenuation = Color::new(1.0, 1.0, 1.0);
+fn ray_color(mut r: Ray, world: &dyn Hittable, depth: u32) -> Color {
+    let mut attenuation = Color::new(1.0, 1.0, 1.0);
+    let mut current_depth = depth;
 
-    for _ in 0..depth {
-        if let Some(rec) = world.hit(&current_ray, 0.001, f64::INFINITY) {
+    while current_depth > 0 {
+        if let Some(rec) = world.hit(&r, 0.001, f64::INFINITY) {
             let mut scattered = Ray::new(Point3::default(), Vec3::default());
-            let mut attenuation = Color::default();
+            let mut scattered_attenuation = Color::default();
             if rec
                 .mat_ptr
-                .scatter(&current_ray, &rec, &mut attenuation, &mut scattered)
+                .scatter(&r, &rec, &mut scattered_attenuation, &mut scattered)
             {
-                overall_attenuation = overall_attenuation * attenuation;
-                current_ray = scattered;
+                attenuation = attenuation * scattered_attenuation;
+                r = scattered;
             } else {
                 return Color::default();
             }
         } else {
-            let unit_direction = current_ray.direction.unit_vector();
+            let unit_direction = r.direction.unit_vector();
             let t = 0.5 * (unit_direction.y + 1.0);
             let background_color =
                 (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
-            return overall_attenuation * background_color;
+            return attenuation * background_color;
         }
+        current_depth -= 1;
     }
 
-    Color::default()
+    Color::default() // If max_depth is reached, ray_color is black.
 }
 
 fn write_color(color: Color) -> image::Rgb<u8> {
@@ -161,7 +162,7 @@ fn main() {
                     ((IMAGE_HEIGHT - j - 1) as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
 
                 let r = cam.get_ray(u, v);
-                pixel_color += ray_color(&r, &world, max_depth);
+                pixel_color += ray_color(r, &world, max_depth);
             }
             pixel_color /= samples_per_pixel as f64;
             *pixel = write_color(pixel_color);
