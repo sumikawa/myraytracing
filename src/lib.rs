@@ -6,4 +6,5 @@ pub mod hittable_list;
 pub mod material;
 pub mod ray;
 pub mod rtweekend;
+pub mod texture;
 pub mod vec3;
