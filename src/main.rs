@@ -5,6 +5,7 @@ use myraytracing::hittable_list::HittableList;
 use myraytracing::material::{Dielectric, Lambertian, Metal};
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::random_double;
+use myraytracing::texture::SolidColor;
 use myraytracing::vec3::{Color, Point3, Vec3};
 use rayon::prelude::*;
 use std::sync::Arc;
@@ -50,7 +51,9 @@ fn write_color(color: Color) -> image::Rgb<u8> {
 fn random_scene() -> HittableList {
     let mut world = HittableList::new();
 
-    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let ground_material = Arc::new(Lambertian::new(Arc::new(SolidColor::new(Color::new(
+        0.5, 0.5, 0.5,
+    )))));
     world.add(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -71,7 +74,7 @@ fn random_scene() -> HittableList {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Color::random() * Color::random();
-                    sphere_material = Arc::new(Lambertian::new(albedo));
+                    sphere_material = Arc::new(Lambertian::new(Arc::new(SolidColor::new(albedo))));
                     world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else if choose_mat < 0.95 {
                     // metal
@@ -94,7 +97,9 @@ fn random_scene() -> HittableList {
         1.0,
         material1,
     )));
-    let material2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let material2 = Arc::new(Lambertian::new(Arc::new(SolidColor::new(Color::new(
+        0.4, 0.2, 0.1,
+    )))));
     world.add(Arc::new(Sphere::new(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,

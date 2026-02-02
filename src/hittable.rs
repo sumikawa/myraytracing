@@ -2,12 +2,15 @@ use crate::aabb::Aabb;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
+use std::f64::consts::PI;
 use std::sync::Arc;
 
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
+    pub u: f64,
+    pub v: f64,
     pub mat_ptr: Arc<dyn Material>,
     pub front_face: bool,
 }
@@ -59,9 +62,12 @@ impl Hittable for Sphere {
             if temp < t_max && temp > t_min {
                 let t = temp;
                 let p = r.at(t);
+                let (u, v) = get_sphere_uv(&((p - self.center) / self.radius));
                 let mut rec = HitRecord {
                     p,
                     t,
+                    u,
+                    v,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
                     mat_ptr: Arc::clone(&self.mat_ptr), // Assign the sphere's material
@@ -75,9 +81,12 @@ impl Hittable for Sphere {
             if temp < t_max && temp > t_min {
                 let t = temp;
                 let p = r.at(t);
+                let (u, v) = get_sphere_uv(&((p - self.center) / self.radius));
                 let mut rec = HitRecord {
                     p,
                     t,
+                    u,
+                    v,
                     normal: Vec3::new(0.0, 0.0, 0.0),
                     front_face: false,
                     mat_ptr: Arc::clone(&self.mat_ptr), // Assign the sphere's material
@@ -97,4 +106,19 @@ impl Hittable for Sphere {
         );
         Some(output_box)
     }
+}
+
+pub fn get_sphere_uv(p: &Point3) -> (f64, f64) {
+    // p: a given point on the sphere of radius 1 centered at the origin.
+    // u: returned value [0,1] of angle around Y axis from X=-1.
+    // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+    //     <1 0 0> yields <0.5 0.5>       <-1 0 0> yields <0.0 0.5>
+    //     <0 1 0> yields <0.5 1.0>       <0 -1 0> yields <0.5 0.0>
+    //     <0 0 1> yields <0.25 0.5>      <0 0 -1> yields <0.75 0.5>
+
+    let phi = p.z.atan2(p.x);
+    let theta = p.y.asin();
+    let u = 1.0 - (phi + PI) / (2.0 * PI);
+    let v = (theta + PI / 2.0) / PI;
+    (u, v)
 }
