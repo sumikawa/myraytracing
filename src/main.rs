@@ -5,7 +5,7 @@ use myraytracing::hittable_list::HittableList;
 use myraytracing::material::{Dielectric, Lambertian, Metal};
 use myraytracing::ray::Ray;
 use myraytracing::rtweekend::random_double;
-use myraytracing::texture::SolidColor;
+use myraytracing::texture::{CheckerTexture, SolidColor};
 use myraytracing::vec3::{Color, Point3, Vec3};
 use rayon::prelude::*;
 use std::sync::Arc;
@@ -51,13 +51,15 @@ fn write_color(color: Color) -> image::Rgb<u8> {
 fn random_scene() -> HittableList {
     let mut world = HittableList::new();
 
-    let ground_material = Arc::new(Lambertian::new(Arc::new(SolidColor::new(Color::new(
-        0.5, 0.5, 0.5,
-    )))));
+    let checker = Arc::new(Lambertian::new(Arc::new(CheckerTexture::new(
+        Arc::new(SolidColor::new(Color::new(0.2, 0.3, 0.1))),
+        Arc::new(SolidColor::new(Color::new(0.9, 0.9, 0.9))),
+    ))));
+
     world.add(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
-        ground_material,
+        checker,
     )));
 
     for a in -11..11 {
