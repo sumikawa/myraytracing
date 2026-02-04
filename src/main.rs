@@ -1,5 +1,6 @@
 use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use myraytracing::camera::Camera;
+use myraytracing::config::Settings;
 use myraytracing::hittable::{Hittable, Sphere};
 use myraytracing::hittable_list::HittableList;
 use myraytracing::material::{Dielectric, Lambertian, Metal};
@@ -118,12 +119,13 @@ fn random_scene() -> HittableList {
 }
 
 fn main() {
-    const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WIDTH: u32 = 384;
-    const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
+    let settings = Settings::new();
+    let aspect_ratio = settings.aspect_ratio;
+    let image_width = settings.image_width;
+    let image_height = (image_width as f64 / aspect_ratio) as u32;
 
-    let samples_per_pixel: u32 = 100;
-    let max_depth: u32 = 50;
+    const SAMPLES_PER_PIXEL: u32 = 100;
+    const MAX_DEPTH: u32 = 50;
 
     let world = random_scene();
 
@@ -138,14 +140,14 @@ fn main() {
         lookat,
         vup,
         20.0, // vfov
-        ASPECT_RATIO,
+        aspect_ratio,
         aperture,
         dist_to_focus,
     );
 
-    let mut imgbuf = image::ImageBuffer::new(IMAGE_WIDTH, IMAGE_HEIGHT);
+    let mut imgbuf = image::ImageBuffer::new(image_width, image_height);
 
-    let pb = ProgressBar::new((IMAGE_WIDTH * IMAGE_HEIGHT) as u64);
+    let pb = ProgressBar::new((image_width * image_height) as u64);
     pb.set_style(
         ProgressStyle::default_bar()
             .template(
@@ -163,15 +165,15 @@ fn main() {
         .for_each(|(i, j, pixel)| {
             let mut pixel_color = Color::default();
 
-            for _ in 0..samples_per_pixel {
-                let u: f64 = (i as f64 + random_double()) / (IMAGE_WIDTH - 1) as f64;
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let u: f64 = (i as f64 + random_double()) / (image_width - 1) as f64;
                 let v: f64 =
-                    ((IMAGE_HEIGHT - j - 1) as f64 + random_double()) / (IMAGE_HEIGHT - 1) as f64;
+                    ((image_height - j - 1) as f64 + random_double()) / (image_height - 1) as f64;
 
                 let r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, &world, max_depth);
+                pixel_color += ray_color(r, &world, MAX_DEPTH);
             }
-            pixel_color /= samples_per_pixel as f64;
+            pixel_color /= SAMPLES_PER_PIXEL as f64;
             *pixel = write_color(pixel_color);
         });
 
