@@ -124,8 +124,8 @@ fn main() {
     let image_width = settings.image_width;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
 
-    const SAMPLES_PER_PIXEL: u32 = 100;
-    const MAX_DEPTH: u32 = 50;
+    let samples_per_pixel = settings.samples_per_pixel;
+    let max_depth = settings.max_depth;
 
     let world = random_scene();
 
@@ -165,15 +165,15 @@ fn main() {
         .for_each(|(i, j, pixel)| {
             let mut pixel_color = Color::default();
 
-            for _ in 0..SAMPLES_PER_PIXEL {
+            for _ in 0..samples_per_pixel {
                 let u: f64 = (i as f64 + random_double()) / (image_width - 1) as f64;
                 let v: f64 =
                     ((image_height - j - 1) as f64 + random_double()) / (image_height - 1) as f64;
 
                 let r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, &world, MAX_DEPTH);
+                pixel_color += ray_color(r, &world, max_depth);
             }
-            pixel_color /= SAMPLES_PER_PIXEL as f64;
+            pixel_color /= samples_per_pixel as f64;
             *pixel = write_color(pixel_color);
         });
 
