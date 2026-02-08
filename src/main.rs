@@ -177,5 +177,5 @@ fn main() {
             *pixel = write_color(pixel_color);
         });
 
-    imgbuf.save("output.png").unwrap();
+    imgbuf.save(&settings.output_filename).unwrap();
 }

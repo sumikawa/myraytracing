@@ -2,3 +2,4 @@ aspect_ratio = 1.7777777777777777
 image_width = 384
 samples_per_pixel = 100
 max_depth = 50
+output_filename = "output.png"
